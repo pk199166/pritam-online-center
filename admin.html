@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pritam Center - Admin Control Panel</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f0f2f5; padding: 15px; color: #333; }
+        
+        /* मुख्य कंटेनर */
+        .container { max-width: 1200px; margin: 10px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid #28a745; }
+        
+        /* टॉप बार: हेडर और सारे बटन्स एक लाइन में रखने के लिए */
+        .admin-top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
+        .admin-top-bar h2 { color: #28a745; font-size: 1.8rem; }
+        .admin-btn-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+        /* ग्रिड लेआउट: दोनों बड़े बॉक्स अगल-बगल दिखेंगे */
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .box { background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+        textarea { height: 100px; resize: vertical; }
+        
+        button { padding: 12px 20px; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        .btn-submit { background-color: #28a745; }
+        .btn-delete { background-color: #dc3545; padding: 10px 15px; font-size: 14px; width: auto; }
+        .btn-edit { background-color: #ff9800; padding: 5px 10px; font-size: 12px; width: auto; }
+        
+        /* टॉप एक्शन बटन्स की स्टाइल */
+        .btn-settings { background-color: #6c757d; color: white; padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: 8px; font-weight: bold; text-align: center; }
+        .btn-apt { background-color: #fd7e14; color: white; padding: 10px 18px; font-size: 14px; border-radius: 8px; width: auto; }
+        .btn-users { background-color: #6f42c1; color: white; padding: 10px 18px; font-size: 14px; border-radius: 8px; width: auto; }
+        .btn-sheet { background-color: #17a2b8; color: white; padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: 8px; font-weight: bold; text-align: center; }
+        
+        .hidden { display: none !important; }
+        .adm-notice-item { background: #f8f9fa; padding: 12px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #ff9800; border: 1px solid #eee; }
+        
+        /* पॉप-अप विंडो की स्टाइल */
+        .user-modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .user-modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 5px 25px rgba(0,0,0,0.3); position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; }
+        
+        .request-item { padding: 15px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ffc107; background: #f8f9fa; border: 1px solid #ddd; }
+        
+        /* रसीद स्टाइल */
+        .receipt-container { background: #fff; padding: 20px; border: 2px solid #333; max-width: 450px; margin: 20px auto; border-radius: 10px; font-family: monospace; }
+        .receipt-header { text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px; margin-bottom: 10px; }
+        .receipt-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 14px; }
+        
+        @media (max-width: 850px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .admin-top-bar { flex-direction: column; text-align: center; }
+            .admin-btn-group { justify-content: center; width: 100%; }
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-print-zone, #receipt-print-zone * { visibility: visible; }
+            #receipt-print-zone { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="admin-login-box" style="max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
+        <h2 style="color: #28a745;">🔐 Owner Secure Login</h2>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">प्रीतम ऑनलाइन सेंटर नियंत्रण कक्ष</p>
+        <input type="email" id="admin-email" placeholder="एडमिन ईमेल आईडी डालें">
+        <input type="password" id="admin-password" placeholder="एडमिन पासवर्ड डालें">
+        <button class="btn-submit" onclick="loginAdmin()">Verify & Login</button>
+    </div>
+
+    <div id="admin-dashboard" class="container hidden">
+        
+        <div class="admin-top-bar">
+            <h2 id="admin-panel-title">🛠️ प्रीतम ऑनलाइन सेंटर - मुख्य कंट्रोल रूम</h2>
+            <div class="admin-btn-group">
+                <a href="settings.html" class="btn-settings">⚙️ Settings</a>
+                <button onclick="openAptModal()" class="btn-apt">📅 अपॉइंटमेंट मैनेजर</button>
+                <button onclick="openUsersModal()" class="btn-users">👥 ग्राहक एक्सेस मैनेजर</button>
+                <a href="balancesheet.html" target="_blank" class="btn-sheet">📊 Balance Sheet</a>
+                <button onclick="logoutAdmin()" class="btn-delete">Logout 🔒</button>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <div class="box" style="border-top: 4px solid #ff9800;">
+                <h3 id="form-action-title" style="color: #ff9800; margin-bottom: 15px;">📢 नया नोटिफिकेशन लाइव करें</h3>
+                <input type="hidden" id="edit-doc-id">
+                <input type="text" id="notice-title" placeholder="फॉर्म का नाम (उदा: BPSC TRE 4.0)">
+                <textarea id="notice-docs" placeholder="जरूरी डॉक्यूमेंट्स की लिस्ट लिखें..."></textarea>
+                <input type="text" id="notice-start" placeholder="शुरू तिथि">
+                <input type="text" id="notice-last" placeholder="अंतिम तिथि">
+                <button class="btn-submit" id="btn-save-notice" style="background:#ff9800;" onclick="saveNotification()">होमपेज पर लाइव करें</button>
+                <button class="btn-delete hidden" id="btn-cancel-edit" style="margin-top:5px; background:#666; width:100%;" onclick="cancelEdit()">कैंसिल एडिट</button>
+
+                <h4 style="margin-top:25px; border-top:1px solid #eee; padding-top:15px; color: #ff9800;">📋 लाइव नोटिफिकेशन्स लिस्ट:</h4>
+                <div id="admin-notice-list" style="margin-top: 10px;">लोड हो रहा है...</div>
+            </div>
+
+            <div class="box" style="border-top: 4px solid #1e3c72;">
+                <h3 style="color: #1e3c72; margin-bottom: 15px;">💰 ग्राहक खाता प्रबंधन (Ledger Updates)</h3>
+                <input type="text" id="cust-uid" placeholder="यहाँ ग्राहक की UID पेस्ट करें">
+                <input type="text" id="work-title" placeholder="काम का विवरण (उदा: ज़ेरॉक्स या ऑनलाइन फॉर्म)">
+                <input type="number" id="total-amt" placeholder="कुल चार्ज (₹)">
+                <input type="number" id="paid-amt" placeholder="जमा की गई राशि (₹)">
+                <input type="text" id="cust-file-link" placeholder="डॉक्यूमेंट का लिंक डालें (Optional)">
+                <button class="btn-submit" style="background:#1e3c72; margin-bottom: 20px;" onclick="updateCustomerLedger()">खाते में अपडेट करें और रसीद बनाएं</button>
+                
+                <h3 style="color: #dc3545; border-top: 1px solid #eee; padding-top: 20px; margin-bottom: 10px;">💸 दुकान का खर्च दर्ज करें (Expenses)</h3>
+                <input type="text" id="exp-title" placeholder="खर्च का विवरण">
+                <input type="number" id="exp-amt" placeholder="खर्च राशि (₹)">
+                <button class="btn-submit" style="background:#dc3545;" onclick="addShopExpense()">खर्च दर्ज करें</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="users-modal" class="user-modal-bg hidden">
+        <div class="user-modal-content">
+            <span class="close-btn" onclick="closeUsersModal()">&times;</span>
+            <h3 style="color: #6f42c1; border-bottom: 2px solid #6f42c1; padding-bottom: 10px; margin-bottom: 15px;">👥 ग्राहक एक्सेस कंट्रोल</h3>
+            <div id="admin-requests-list">लोड हो रहा है...</div>
+        </div>
+    </div>
+
+    <div id="apt-modal" class="user-modal-bg hidden">
+        <div class="user-modal-content">
+            <span class="close-btn" onclick="closeAptModal()">&times;</span>
+            <h3 style="color: #fd7e14; border-bottom: 2px solid #fd7e14; padding-bottom: 10px; margin-bottom: 15px;">📅 ग्राहकों के अपॉइंटमेंट मैनेजर</h3>
+            <div id="admin-apt-list">लोड हो रहा है...</div>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="user-modal-bg hidden">
+        <div class="user-modal-content" style="max-width:500px;">
+            <span class="close-btn" onclick="closeReceiptModal()">&times;</span>
+            <div id="receipt-print-zone">
+                <div class="receipt-container">
+                    <div class="receipt-header">
+                        <h2 id="rcpt-shop-name">PRITAM ONLINE CENTER</h2>
+                        <p id="rcpt-shop-address">पिरि बाज़ार, लखीसराय, बिहार</p>
+                        <p>मोबाइल: <span id="rcpt-shop-mobile">7301XXXXXX</span></p>
+                        <p>---------------------------</p>
+                        <h3>** नगद/उधारी रसीद (INVOICE) **</h3>
+                    </div>
+                    <div class="receipt-row"><span>दिनांक:</span><span id="rcpt-date">-</span></div>
+                    <div class="receipt-row"><span>ग्राहक नाम:</span><span id="rcpt-name">-</span></div>
+                    <div class="receipt-row"><span>काम का विवरण:</span><span id="rcpt-work">-</span></div>
+                    <p>---------------------------</p>
+                    <div class="receipt-row"><span>कुल चार्ज:</span><b>₹<span id="rcpt-total">0</span></b></div>
+                    <div class="receipt-row"><span>जमा राशि:</span><b style="color:green;">₹<span id="rcpt-paid">0</span></b></div>
+                    <div class="receipt-row"><span>बाकी उधारी (Due):</span><b style="color:red;">₹<span id="rcpt-due">0</span></b></div>
+                    <p>---------------------------</p>
+                    <div class="receipt-row"><span>कुल बाज़ार उधारी:</span><b>₹<span id="rcpt-market-due">0</span></b></div>
+                    <div class="receipt-header" style="margin-top:20px; border:none;">
+                        <p>🙏 आने के लिए धन्यवाद! 🙏</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-submit" style="margin-top:15px;" onclick="window.print()">Print Receipt 🖨️</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
+            authDomain: "pritam-online-center.firebaseapp.com",
+            projectId: "pritam-online-center",
+            storageBucket: "pritam-online-center.firebasestorage.app",
+            messagingSenderId: "310541912344",
+            appId: "1:310541912344:web:3f05beef1626edfe2f766d",
+            measurementId: "G-T87S6TXHR6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "pk199166@gmail.com"; 
+
+        window.loginAdmin = function() {
+            const email = document.getElementById('admin-email').value.trim().toLowerCase();
+            const password = document.getElementById('admin-password').value.trim();
+            if (email !== ADMIN_EMAIL) return alert("एक्सेस डिनाइड!");
+            
+            // 🛠️ यहाँ सुधारा गया ब्रैकेट एरर
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => { alert("लॉगिन सफल रहा!"); })
+                .catch(err => { alert("त्रुटि: " + err.message); });
+        }
+
+        window.logoutAdmin = function() { signOut(auth); }
+
+        onAuthStateChanged(auth, (user) => {
+            if(user && user.email.toLowerCase() === ADMIN_EMAIL) {
+                document.getElementById('admin-login-box').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                loadSystemConfig(); 
+                loadAdminNotifications();
+                loadAllCustomers();
+                loadAdminAppointments();
+            } else {
+                document.getElementById('admin-login-box').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('hidden');
+            }
+        });
+
+        async function loadSystemConfig() {
+            try {
+                const docSnap = await getDoc(doc(db, "system", "config"));
+                if(docSnap.exists()) {
+                    const data = docSnap.data();
+                    if(data.shop_name) {
+                        document.getElementById('admin-panel-title').innerText = `🛠️ ${data.shop_name} - मुख्य कंट्रोल रूम`;
+                        document.getElementById('rcpt-shop-name').innerText = data.shop_name;
+                    }
+                    if(data.address) document.getElementById('rcpt-shop-address').innerText = data.address;
+                    if(data.mobile) document.getElementById('rcpt-shop-mobile').innerText = data.mobile;
+                }
+            } catch(e) { console.log(e.message); }
+        }
+
+        window.openUsersModal = function() { document.getElementById('users-modal').classList.remove('hidden'); }
+        window.closeUsersModal = function() { document.getElementById('users-modal').classList.add('hidden'); }
+        
+        window.openAptModal = function() { document.getElementById('apt-modal').classList.remove('hidden'); }
+        window.closeAptModal = function() { document.getElementById('apt-modal').classList.add('hidden'); }
+        
+        window.closeReceiptModal = function() { document.getElementById('receipt-modal').classList.add('hidden'); }
+
+        async function loadAllCustomers() {
+            const reqDiv = document.getElementById('admin-requests-list');
+            reqDiv.innerHTML = "";
+            try {
+                const querySnapshot = await getDocs(collection(db, "customers"));
+                querySnapshot.forEach((documentSnap) => {
+                    const data = documentSnap.data();
+                    const uid = documentSnap.id;
+                    const isPending = data.status === "Pending";
+                    const item = document.createElement('div');
+                    item.className = 'request-item';
+                    item.style.backgroundColor = isPending ? '#fff3cd' : '#e8f5e9';
+                    item.innerHTML = `
+                        <div>
+                            <strong>नाम:</strong> ${data.name} | <strong>मोबाइल:</strong> ${data.mobile}<br>
+                            <strong>ईमेल:</strong> <span style="color:#007bff;">${data.email || 'N/A'}</span><br>
+                            <small><b>UID:</b> ${uid}</small>
+                        </div>
+                        <div>
+                            ${isPending ? 
+                                `<button class="btn-submit" style="width:auto; background:#28a745; padding:5px 10px;" onclick="changeUserStatus('${uid}', 'Approved')">Approve ✅</button>` : 
+                                `<button class="btn-delete" style="width:auto; background:#dc3545; padding:5px 10px; margin:0;" onclick="changeUserStatus('${uid}', 'Pending')">Block ❌</button>`
+                            }
+                        </div>`;
+                    reqDiv.appendChild(item);
+                });
+            } catch (e) { console.log(e.message); }
+        }
+
+        window.changeUserStatus = async function(uid, newStatus) {
+            try {
+                await updateDoc(doc(db, "customers", uid), { status: newStatus });
+                loadAllCustomers();
+            } catch (e) { alert(e.message); }
+        }
+
+        async function loadAdminAppointments() {
+            const aptDiv = document.getElementById('admin-apt-list');
+            aptDiv.innerHTML = "";
+            try {
+                const querySnapshot = await getDocs(collection(db, "appointments"));
+                if(querySnapshot.empty) {
+                    aptDiv.innerHTML = "<p>कोई अपॉइंटमेंट रिक्वेस्ट नहीं है।</p>";
+                    return;
+                }
+                
+                querySnapshot.forEach(async (documentSnap) => {
+                    const data = documentSnap.data();
+                    const aptId = documentSnap.id;
+                    const custSnap = await getDoc(doc(db, "customers", data.userId));
+                    const name = custSnap.exists() ? custSnap.data().name : "अज्ञात ग्राहक";
+
+                    const item = document.createElement('div');
+                    item.className = 'request-item';
+                    item.style.borderLeftColor = data.status === "Approved" ? "green" : (data.status === "Rejected" ? "red" : "orange");
+                    
+                    item.innerHTML = `
+                        <div>
+                            <strong>ग्राहक:</strong> ${name}<br>
+                            <strong>तारीख:</strong> ${data.date} | <strong>समय:</strong> ${data.time}<br>
+                            <strong>स्टेटस:</strong> <b>${data.status}</b>
+                        </div>
+                        <div>
+                            ${data.status === "Pending" ? `
+                                <button class="btn-submit" style="width:auto; background:#28a745; padding:5px 10px; margin-bottom:2px;" onclick="changeAptStatus('${aptId}', 'Approved')">Approve ✅</button>
+                                <button class="btn-delete" style="width:auto; background:#dc3545; padding:5px 10px; margin:0;" onclick="changeAptStatus('${aptId}', 'Rejected')">Reject ❌</button>
+                            ` : `<span style="color:#666; font-size:12px;">Done</span>`}
+                        </div>`;
+                    aptDiv.appendChild(item);
+                });
+            } catch (e) { console.log(e.message); }
+        }
+
+        window.changeAptStatus = async function(id, status) {
+            try {
+                await updateDoc(doc(db, "appointments", id), { status: status });
+                alert("अपॉइंटमेंट अपडेट हो गया!");
+                loadAdminAppointments();
+            } catch (e) { alert(e.message); }
+        }
+
+        window.updateCustomerLedger = async function() {
+            const uid = document.getElementById('cust-uid').value.trim();
+            const work = document.getElementById('work-title').value.trim();
+            const total = Number(document.getElementById('total-amt').value);
+            const paid = Number(document.getElementById('paid-amt').value);
+            const fileLink = document.getElementById('cust-file-link').value.trim();
+            
+            if(!uid || !work) return alert("UID और काम भरना जरूरी है!");
+            const dueCalculated = total - paid;
+            const today = new Date().toLocaleDateString('hi-IN');
+            try {
+                const custRef = doc(db, "customers", uid);
+                const custSnap = await getDoc(custRef);
+                if(custSnap.exists()) {
+                    const custName = custSnap.data().name;
+                    const finalDue = (custSnap.data().total_due || 0) + dueCalculated;

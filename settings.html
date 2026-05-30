@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pritam Center - System Settings</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 40px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid #6c757d; }
+        h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+        button { padding: 12px 20px; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-save { background-color: #28a745; }
+        .btn-back { background-color: #6c757d; text-decoration: none; display: inline-block; text-align: center; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="settings-card" class="container">
+        <h2>⚙️ सिस्टम कॉन्फ़िगरेशन और सेटिंग्स</h2>
+        
+        <div class="form-group">
+            <label>दुकान का नाम (Shop Name):</label>
+            <input type="text" id="set-shop-name" placeholder="Pritam Online Center">
+        </div>
+        
+        <div class="form-group">
+            <label>दुकान का पता (Address):</label>
+            <input type="text" id="set-shop-address" placeholder="पिरि बाज़ार, लखीसराय, बिहार">
+        </div>
+        
+        <div class="form-group">
+            <label>हेल्पलाइन मोबाइल नंबर:</label>
+            <input type="text" id="set-shop-mobile" placeholder="7301XXXXXX">
+        </div>
+
+        <div class="form-group">
+            <label>मास्टर एडमिन ईमेल आईडी:</label>
+            <input type="email" id="set-admin-email" placeholder="pk199166@gmail.com">
+        </div>
+
+        <button class="btn-save" onclick="saveSettings()">⚙️ सेटिंग्स सुरक्षित करें</button>
+        <a href="admin.html" class="btn-back" style="width:100%; padding:12px; margin-top:10px;">⬅️ एडमिन पैनल पर वापस जाएं</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
+            authDomain: "pritam-online-center.firebaseapp.com",
+            projectId: "pritam-online-center",
+            storageBucket: "pritam-online-center.firebasestorage.app",
+            messagingSenderId: "310541912344",
+            appId: "1:310541912344:web:3f05beef1626edfe2f766d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // सुरक्षा जांच: केवल मुख्य ईमेल वाला व्यक्ति ही देख सके
+        onAuthStateChanged(auth, async (user) => {
+            if(user && user.email.toLowerCase() === "pk199166@gmail.com") {
+                loadSettings();
+            } else {
+                alert("अनाधिकृत प्रवेश! केवल मुख्य एडमिन ही सेटिंग्स बदल सकता है।");
+                window.location.href = "admin.html";
+            }
+        });
+
+        async function loadSettings() {
+            const docSnap = await getDoc(doc(db, "system", "config"));
+            if(docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('set-shop-name').value = data.shop_name || "";
+                document.getElementById('set-shop-address').value = data.address || "";
+                document.getElementById('set-shop-mobile').value = data.mobile || "";
+                document.getElementById('set-admin-email').value = data.admin_email || "";
+            }
+        }
+
+        window.saveSettings = async function() {
+            const shopName = document.getElementById('set-shop-name').value.trim();
+            const address = document.getElementById('set-shop-address').value.trim();
+            const mobile = document.getElementById('set-shop-mobile').value.trim();
+            const email = document.getElementById('set-admin-email').value.trim().toLowerCase();
+
+            if(!shopName || !email) return alert("दुकान का नाम और ईमेल आवश्यक हैं!");
+
+            try {
+                await setDoc(doc(db, "system", "config"), {
+                    shop_name: shopName,
+                    address: address,
+                    mobile: mobile,
+                    admin_email: email
+                });
+                alert("🎉 सिस्टम सेटिंग्स सफलतापूर्वक अपडेट हो गईं!");
+            } catch(e) { alert(e.message); }
+        }
+    </script>
+</body>
+</html>
