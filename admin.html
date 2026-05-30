@@ -11,12 +11,12 @@
         /* मुख्य कंटेनर */
         .container { max-width: 1200px; margin: 10px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid #28a745; }
         
-        /* टॉप बार: हेडर और सारे बटन्स एक लाइन में रखने के लिए */
+        /* टॉप बार */
         .admin-top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
         .admin-top-bar h2 { color: #28a745; font-size: 1.8rem; }
         .admin-btn-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
-        /* ग्रिड लेआउट: दोनों बड़े बॉक्स अगल-बगल दिखेंगे */
+        /* ग्रिड लेआउट */
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .box { background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         
@@ -30,16 +30,15 @@
         .btn-delete { background-color: #dc3545; padding: 10px 15px; font-size: 14px; width: auto; }
         .btn-edit { background-color: #ff9800; padding: 5px 10px; font-size: 12px; width: auto; }
         
-        /* टॉप एक्शन बटन्स की स्टाइल */
         .btn-settings { background-color: #6c757d; color: white; padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: 8px; font-weight: bold; text-align: center; }
         .btn-apt { background-color: #fd7e14; color: white; padding: 10px 18px; font-size: 14px; border-radius: 8px; width: auto; }
         .btn-users { background-color: #6f42c1; color: white; padding: 10px 18px; font-size: 14px; border-radius: 8px; width: auto; }
-        .btn-sheet { background-color: #17a2b8; color: white; padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: 8px; font-weight: bold; text-align: center; }
+        .btn-sheet { background-color: #17a2b8; color: white; padding: 10px 18px; font-text-decoration: none; border-radius: 8px; font-weight: bold; text-align: center; }
         
         .hidden { display: none !important; }
         .adm-notice-item { background: #f8f9fa; padding: 12px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #ff9800; border: 1px solid #eee; }
         
-        /* पॉप-अप विंडो की स्टाइल */
+        /* पॉप-अप विंडो */
         .user-modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .user-modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 5px 25px rgba(0,0,0,0.3); position: relative; }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; }
@@ -75,7 +74,6 @@
     </div>
 
     <div id="admin-dashboard" class="container hidden">
-        
         <div class="admin-top-bar">
             <h2 id="admin-panel-title">🛠️ प्रीतम ऑनलाइन सेंटर - मुख्य कंट्रोल रूम</h2>
             <div class="admin-btn-group">
@@ -191,7 +189,6 @@
             const password = document.getElementById('admin-password').value.trim();
             if (email !== ADMIN_EMAIL) return alert("एक्सेस डिनाइड!");
             
-            // 🛠️ यहाँ सुधारा गया ब्रैकेट एरर
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => { alert("लॉगिन सफल रहा!"); })
                 .catch(err => { alert("त्रुटि: " + err.message); });
@@ -265,11 +262,10 @@
             } catch (e) { console.log(e.message); }
         }
 
-        window.changeUserStatus = async function(uid, newStatus) {
-            try {
-                await updateDoc(doc(db, "customers", uid), { status: newStatus });
-                loadAllCustomers();
-            } catch (e) { alert(e.message); }
+        window.changeUserStatus = function(uid, newStatus) {
+            updateDoc(doc(db, "customers", uid), { status: newStatus })
+                .then(() => { loadAllCustomers(); })
+                .catch (e => { alert(e.message); });
         }
 
         async function loadAdminAppointments() {
@@ -333,3 +329,139 @@
                 if(custSnap.exists()) {
                     const custName = custSnap.data().name;
                     const finalDue = (custSnap.data().total_due || 0) + dueCalculated;
+
+                    await updateDoc(custRef, { total_due: finalDue });
+
+                    await addDoc(collection(db, "transactions"), {
+                        userId: uid,
+                        customerName: custName,
+                        workTitle: work,
+                        totalAmount: total,
+                        paidAmount: paid,
+                        dueAmount: dueCalculated,
+                        fileLink: fileLink,
+                        date: today,
+                        timestamp: new Date()
+                    });
+
+                    document.getElementById('rcpt-date').innerText = today;
+                    document.getElementById('rcpt-name').innerText = custName;
+                    document.getElementById('rcpt-work').innerText = work;
+                    document.getElementById('rcpt-total').innerText = total;
+                    document.getElementById('rcpt-paid').innerText = paid;
+                    document.getElementById('rcpt-due').innerText = dueCalculated;
+                    document.getElementById('rcpt-market-due').innerText = finalDue;
+
+                    document.getElementById('receipt-modal').classList.remove('hidden');
+                    alert("खाता अपडेट हो गया और रसीद तैयार है!");
+                    
+                    document.getElementById('cust-uid').value = "";
+                    document.getElementById('work-title').value = "";
+                    document.getElementById('total-amt').value = "";
+                    document.getElementById('paid-amt').value = "";
+                    document.getElementById('cust-file-link').value = "";
+                } else {
+                    alert("इस UID का कोई ग्राहक नहीं मिला!");
+                }
+            } catch (e) { alert("त्रुटि: " + e.message); }
+        }
+
+        window.addShopExpense = async function() {
+            const title = document.getElementById('exp-title').value.trim();
+            const amt = Number(document.getElementById('exp-amt').value);
+            const today = new Date().toLocaleDateString('hi-IN');
+
+            if(!title || !amt) return alert("खर्च का विवरण और राशि भरें!");
+
+            try {
+                await addDoc(collection(db, "expenses"), {
+                    title: title,
+                    amount: amt,
+                    date: today,
+                    timestamp: new Date()
+                });
+                alert("खर्च सफलतापूर्वक दर्ज हुआ!");
+                document.getElementById('exp-title').value = "";
+                document.getElementById('exp-amt').value = "";
+            } catch (e) { alert(e.message); }
+        }
+
+        window.saveNotification = async function() {
+            const id = document.getElementById('edit-doc-id').value;
+            const title = document.getElementById('notice-title').value.trim();
+            const docs = document.getElementById('notice-docs').value.trim();
+            const start = document.getElementById('notice-start').value.trim();
+            const last = document.getElementById('notice-last').value.trim();
+
+            if(!title) return alert("नोटिफिकेशन का नाम लिखना जरूरी है!");
+
+            const noticeData = { title, docs, start, last, timestamp: new Date() };
+
+            try {
+                if(id) {
+                    await updateDoc(doc(db, "notifications", id), noticeData);
+                    alert("नोटिफिकेशन अपडेट हो गया!");
+                } else {
+                    await addDoc(collection(db, "notifications"), noticeData);
+                    alert("नया नोटिफिकेशन लाइव हो गया!");
+                }
+                cancelEdit();
+                loadAdminNotifications();
+            } catch(e) { alert(e.message); }
+        }
+
+        async function loadAdminNotifications() {
+            const listDiv = document.getElementById('admin-notice-list');
+            listDiv.innerHTML = "लोड हो रहा है...";
+            try {
+                const querySnapshot = await getDocs(collection(db, "notifications"));
+                listDiv.innerHTML = "";
+                querySnapshot.forEach((documentSnap) => {
+                    const data = documentSnap.data();
+                    const id = documentSnap.id;
+                    const item = document.createElement('div');
+                    item.className = 'adm-notice-item';
+                    item.innerHTML = `
+                        <div><strong>${data.title}</strong><br><small>लास्ट डेट: ${data.last || 'N/A'}</small></div>
+                        <div>
+                            <button class="btn-edit" onclick="editNotice('${id}', '${data.title}', \`${data.docs || ''}\`, '${data.start || ''}', '${data.last || ''}')">Edit ✏️</button>
+                            <button class="btn-delete" style="padding:5px 10px; font-size:12px;" onclick="deleteNotice('${id}')">Delete 🗑️</button>
+                        </div>`;
+                    listDiv.appendChild(item);
+                });
+            } catch(e) { listDiv.innerHTML = "लोड करने में एरर आया।"; }
+        }
+
+        window.editNotice = function(id, title, docs, start, last) {
+            document.getElementById('edit-doc-id').value = id;
+            document.getElementById('notice-title').value = title;
+            document.getElementById('notice-docs').value = docs;
+            document.getElementById('notice-start').value = start;
+            document.getElementById('notice-last').value = last;
+            document.getElementById('form-action-title').innerText = "✏️ नोटिफिकेशन एडिट करें";
+            document.getElementById('btn-save-notice').innerText = "बदलाव सेव करें";
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+        }
+
+        window.cancelEdit = function() {
+            document.getElementById('edit-doc-id').value = "";
+            document.getElementById('notice-title').value = "";
+            document.getElementById('notice-docs').value = "";
+            document.getElementById('notice-start').value = "";
+            document.getElementById('notice-last').value = "";
+            document.getElementById('form-action-title').innerText = "📢 नया नोटिफिकेशन लाइव करें";
+            document.getElementById('btn-save-notice').innerText = "होमपेज पर लाइव करें";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        window.deleteNotice = async function(id) {
+            if(!confirm("क्या आप इस नोटिफिकेशन को हटाना चाहते हैं?")) return;
+            try {
+                await deleteDoc(doc(db, "notifications", id));
+                alert("हटा दिया गया!");
+                loadAdminNotifications();
+            } catch(e) { alert(e.message); }
+        }
+    </script>
+</body>
+</html>
