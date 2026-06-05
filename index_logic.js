@@ -14,39 +14,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 📢 1. लाइव नोटिफिकेशन लोड करना (डेटाबेस से)
-async function loadLiveAnnouncement() {
-    try {
-        const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"));
-        const snapshot = await getDocs(q);
-        const noticeDiv = document.getElementById("live-announcement");
-        
-        if (!snapshot.empty && noticeDiv) {
-            const latestNotice = snapshot.docs[0].data();
-            noticeDiv.innerText = "📢 " + (latestNotice.text || "दुकान खुली है, आप अपना काम करवा सकते हैं।");
-        }
-    } catch (e) {
-        console.error("नोटिफिकेशन लोड एरर: ", e);
-    }
-}
-
-// 🔍 2. ग्राहक सर्च फंक्शन
+// 🔍 ग्राहक सर्च फंक्शन (नाम, मोबाइल या POC आईडी तीनों से काम करेगा)
 async function searchCustomerHistory() {
-    const queryText = document.getElementById('cust-search-query').value.trim();
+    const queryText = document.getElementById('cust-search-query').value.trim().toLowerCase();
     const resultsArea = document.getElementById('search-results-area');
     const historyList = document.getElementById('history-list');
 
     if (!queryText) {
-        alert("कृपया अपना नाम या मोबाइल नंबर दर्ज करें!");
+        alert("कृपया अपना नाम, मोबाइल नंबर या कस्टमर आईडी दर्ज करें!");
         return;
     }
 
-    historyList.innerHTML = "<p style='color:#666; font-size:14px;'>खोज जा रहा है, कृपया प्रतीक्षा करें...</p>";
+    historyList.innerHTML = "<p style='color:#666; font-size:14px;'>खोज जा रहा है...</p>";
     resultsArea.style.display = "block";
 
     try {
-        const txRef = collection(db, "transactions");
-        const q = query(txRef, orderBy("timestamp", "desc"));
+        const q = query(collection(db, "transactions"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         
         let found = false;
@@ -54,12 +37,18 @@ async function searchCustomerHistory() {
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
+            const cID = (data.customerID || "").toLowerCase();
             const cName = (data.customerName || "").toLowerCase();
             const cPhone = String(data.customerPhone || "");
-            const searchLower = queryText.toLowerCase();
 
-            if (cName.includes(searchLower) || cPhone.includes(searchLower)) {
+            // आईडी, नाम या फोन नंबर में से कुछ भी मैच होने पर
+            if (cID.includes(queryText) || cName.includes(queryText) || cPhone.includes(queryText)) {
+                if(!found) {
+                    // पहली बार मैच होने पर ऊपर कस्टमर की परमानेंट आईडी दिखाएं
+                    historyList.innerHTML += `<div style='background:#f1f5f9; padding:6px 10px; border-radius:6px; margin-bottom:10px; font-size:13px; color:#475569;'><b>🆔 आपकी ग्राहक आईडी: ${data.customerID || 'N/A'}</b></div>`;
+                }
                 found = true;
+                
                 const item = document.createElement('div');
                 item.className = "history-item";
                 
@@ -73,7 +62,7 @@ async function searchCustomerHistory() {
                         <span class="status-badge ${statusClass}">${statusText}</span>
                     </div>
                     <p style="color:#555; font-size:13px;">तारीख: ${data.date || '-'}</p>
-                    <p style="margin-top:4px;">
+                    <p style="margin-top:4px; font-size:13px;">
                         कुल चार्ज: <b>₹${data.totalAmount || 0}</b> | 
                         जमा: <span style="color:green;"><b>₹${data.paidAmount || 0}</b></span> | 
                         बाकी: <span style="color:red;"><b>₹${due}</b></span>
@@ -84,32 +73,16 @@ async function searchCustomerHistory() {
         });
 
         if (!found) {
-            historyList.innerHTML = "<p style='color:red; font-size:14px;'>❌ कोई रिकॉर्ड नहीं मिला। कृपया सही नाम या नंबर डालें।</p>";
+            historyList.innerHTML = "<p style='color:red; font-size:14px;'>❌ कोई रिकॉर्ड नहीं मिला। कृपया सही विवरण डालें।</p>";
         }
 
     } catch (error) {
-        console.error("सर्च एरर: ", error);
-        historyList.innerHTML = "<p style='color:red; font-size:14px;'>⚠️ सर्वर से कनेक्ट करने में समस्या आई।</p>";
+        console.error(error);
+        historyList.innerHTML = "<p style='color:red; font-size:14px;'>⚠️ डेटा लोड करने में त्रुटि आई।</p>";
     }
 }
 
-// 🔄 3. इवेंट लिसनर्स चालू करना
 document.addEventListener("DOMContentLoaded", () => {
-    loadLiveAnnouncement();
-
     const searchBtn = document.getElementById('btn-cust-search');
     if (searchBtn) searchBtn.addEventListener('click', searchCustomerHistory);
-    
-    const searchInput = document.getElementById('cust-search-query');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchCustomerHistory();
-        });
-    }
-
-    // 📅 अपॉइंटमेंट बटन का असली एक्शन (अगर आपके पास appointment.html फ़ाइल है)
-    const bookingBtn = document.getElementById('booking-btn');
-    if (bookingBtn) {
-        bookingBtn.setAttribute("href", "appointment.html"); // इसे सीधे बुकिंग पेज से जोड़ दिया
-    }
 });
