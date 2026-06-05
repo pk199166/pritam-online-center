@@ -7,65 +7,58 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f4f6f9; color: #333; padding: 15px; }
-        .header { background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 30px 15px; text-align: center; border-radius: 12px; margin-bottom: 25px; }
-        .main-container { max-width: 800px; margin: 0 auto; }
-        .section-title { color: #1e7e34; margin: 20px 0 10px 0; border-left: 5px solid #28a745; padding-left: 10px; font-size: 1.3rem; }
-        .notice-card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-top: 4px solid #ff9800; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .notice-card h3 { color: #d35400; margin-bottom: 8px; }
-        .booking-box { background: white; padding: 20px; border-radius: 10px; border-top: 4px solid #28a745; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        button:hover { background-color: #218838; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 6px solid #28a745; }
+        h1 { text-align: center; color: #28a745; margin-bottom: 5px; font-size: 1.8rem; }
+        .shop-info { text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; }
+        
+        /* 🔍 सर्च बॉक्स का डिज़ाइन */
+        .search-box-section { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ced4da; }
+        .search-box-section h3 { font-size: 15px; margin-bottom: 10px; color: #495057; display: flex; align-items: center; gap: 5px; }
+        .search-input-group { display: flex; gap: 8px; }
+        .search-input-group input { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
+        .search-input-group button { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        /* 📋 सर्च रिज़ल्ट का डिज़ाइन */
+        .search-results { display: none; margin-top: 15px; background: #fff; border-left: 4px solid #17a2b8; padding: 12px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .history-item { border-bottom: 1px dashed #dee2e6; padding: 10px 0; font-size: 14px; }
+        .history-item:last-child { border-bottom: none; }
+        .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .status-done { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        
+        .announcement { background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; text-align: center; font-size: 14px; border: 1px solid #ffeeba; }
+        .btn-booking { display: block; width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; box-shadow: 0 3px 6px rgba(0,123,255,0.2); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🏁 प्रीतम ऑनलाइन सेंटर</h1>
-        <p>पीरी बाज़ार, लखीसराय (बिहार) - डिजिटल सेवा केंद्र</p>
-    </div>
-    <div class="main-container">
-        <div class="section-title">📢 लाइव सरकारी फॉर्म एवं सूचनाएं</div>
-        <div id="live-notice-board">लोड हो रहा है...</div>
-        
-        <div class="section-title">📅 दुकान आने के लिए समय स्लॉट बुक करें</div>
-        <div class="booking-box">
-            <input type="date" id="apt-date">
-            <select id="apt-time">
-                <option value="">समय स्लॉट चुनें</option>
-                <option value="08:00 AM - 10:00 AM">सुबह 08:00 से 10:00</option>
-                <option value="10:00 AM - 01:00 PM">सुबह 10:00 से दोपहर 01:00</option>
-                <option value="01:00 PM - 04:00 PM">दोपहर 01:00 से शाम 04:00</option>
-                <option value="04:00 PM - 07:00 PM">शाम 04:00 से रात 07:00</option>
-            </select>
-            <button id="btn-customer-book">अपॉइंटमेंट बुक करें 🚀</button>
+
+    <div class="container">
+        <h1> must_be_redacted_for_privacy_reasons</h1>
+        <div class="shop-info">📍 पीरी बाज़ार, लखीसराय (बिहार)</div>
+
+        <!-- 📢 लाइव घोषणा / नोटिस बोर्ड -->
+        <div id="live-announcement" class="announcement">📢 दुकान खुली है, आप अपना काम करवा सकते हैं।</div>
+
+        <!-- 🔍 ग्राहक सर्च बॉक्स (नया फीचर) -->
+        <div class="search-box-section">
+            <h3>🔍 अपना काम और पैसे का हिसाब देखें</h3>
+            <div class="search-input-group">
+                <input type="text" id="cust-search-query" placeholder="अपना नाम या मोबाइल नंबर डालें...">
+                <button id="btn-cust-search">खोजें 🔎</button>
+            </div>
+            
+            <!-- यहाँ सर्च का रिज़ल्ट दिखेगा -->
+            <div id="search-results-area" class="search-results">
+                <h4 style="color: #17a2b8; margin-bottom: 8px; font-size: 15px;">📊 आपके काम का इतिहास (History):</h4>
+                <div id="history-list"></div>
+            </div>
         </div>
+
+        <!-- 📅 ऑनलाइन अपॉइंटमेंट बटन -->
+        <a href="#" id="booking-btn" class="btn-booking">📅 घर बैठे अपॉइंटमेंट बुक करें</a>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { initIndexManager, bookCustomerAppointment } from "./index_logic.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
-            authDomain: "pritam-online-center.firebaseapp.com",
-            projectId: "pritam-online-center",
-            storageBucket: "pritam-online-center.firebasestorage.app",
-            messagingSenderId: "310541912344",
-            appId: "1:310541912344:web:3f05beef1626edfe2f766d",
-            measurementId: "G-T87S6TXHR6"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        initIndexManager(db);
-
-        const currentCustomerUID = "DEMO_USER_ID";
-        const currentCustomerName = "सतीश कुमार (ग्राहक)";
-
-        document.getElementById('btn-customer-book').onclick = function() {
-            bookCustomerAppointment(currentCustomerUID, currentCustomerName);
-        };
-    </script>
+    <!-- लॉजिक फ़ाइल को मॉड्यूल की तरह जोड़ना -->
+    <script type="module" src="index_logic.js"></script>
 </body>
 </html>
