@@ -3,156 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="site-title">Pritam Online Center</title>
-    <!-- 📱 मोबाइल ऐप (PWA) सपोर्ट लिंक -->
-    <link rel="manifest" href="manifest.json">
+    <title>प्रीतम ऑनलाइन सेंटर - पीरी बाज़ार</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f4f7fe; color: #333; }
-        header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 40px 20px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        header h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        header p { font-size: 1.1rem; opacity: 0.9; }
-        .nav-buttons { margin-top: 20px; }
-        .btn { display: inline-block; padding: 10px 25px; margin: 5px; background: #ff9800; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; border: none; font-size: 1rem; }
-        .btn:hover { background: #e65100; transform: translateY(-2px); }
-        .btn-home { background: #00bcd4; }
-        .btn-home:hover { background: #0097a7; }
-        .btn-danger { background: #dc3545; }
-        .btn-danger:hover { background: #bd2130; }
-        .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-        .section-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #1e3c72; margin-bottom: 20px; }
-        .section-box h2 { color: #1e3c72; margin-bottom: 15px; }
-        
-        .search-box { background: #eef2f7; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #2a5298; display: flex; gap: 10px; align-items: center; }
-        .search-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
-        .btn-search { background: #2a5298; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-search:hover { background: #1e3c72; }
-        .search-result-card { background: #fff3cd; border-left: 6px solid #ff9800; padding: 15px; border-radius: 8px; margin-top: 10px; display: none; }
-
-        .form-notice { background: #fff8e1; border: 1px solid #ffe082; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #ffb300; }
-        .form-notice h3 { color: #b78103; margin-bottom: 5px; }
-        .form-details { font-size: 0.95rem; margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .appointment-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #ff9800; }
-        .status-tag { display: inline-block; padding: 5px 10px; border-radius: 5px; font-size: 0.85rem; font-weight: bold; margin-top: 5px; }
-        .status-busy { background: #fce4e4; color: #cc0000; }
-        .status-free { background: #e8f5e9; color: #2e7d32; }
-        .time-slot { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
-        .login-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 5px solid #ff9800; max-width: 450px; margin: 30px auto; text-align: left; }
-        .login-card h2 { color: #ff9800; margin-bottom: 20px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
-        .login-card p { text-align: center; margin-top: 15px; font-size: 0.9rem; }
-        .login-card a { color: #1e3c72; font-weight: bold; text-decoration: none; cursor: pointer; }
-        .hidden { display: none; }
-        
-        .ledger-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; }
-        .ledger-table th, .ledger-table td { padding: 12px; border-bottom: 1px solid #ddd; }
-        .ledger-table th { background-color: #f2f2f2; color: #1e3c72; }
-        .btn-dl-link { padding: 5px 10px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-size: 12px; font-weight: bold; }
-        @media (max-width: 768px) { .main-container { grid-template-columns: 1fr; } }
+        body { background-color: #f4f6f9; color: #333; padding: 15px; }
+        .header { background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 30px 15px; text-align: center; border-radius: 12px; margin-bottom: 25px; }
+        .main-container { max-width: 800px; margin: 0 auto; }
+        .section-title { color: #1e7e34; margin: 20px 0 10px 0; border-left: 5px solid #28a745; padding-left: 10px; font-size: 1.3rem; }
+        .notice-card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-top: 4px solid #ff9800; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .notice-card h3 { color: #d35400; margin-bottom: 8px; }
+        .booking-box { background: white; padding: 20px; border-radius: 10px; border-top: 4px solid #28a745; text-align: center; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #218838; }
     </style>
 </head>
 <body>
-
-    <header>
-        <!-- ⚙️ ये आईडी डेटाबेस से लाइव नाम और विवरण लोड करेंगी -->
-        <h1 id="shop-header-name">Pritam Online Center 🖥️</h1>
-        <p id="shop-header-desc">हमारे यहाँ सभी ऑनलाइन फॉर्म, ज़ेरॉक्स, उधारी और डिजिटल काम मैनेज करने की सुविधा है।</p>
-        <div class="nav-buttons">
-            <button class="btn btn-home" onclick="showSection('home-page')">Home 🏠</button>
-            <button id="nav-login-btn" class="btn" onclick="showSection('public-login-section')">Public Login</button>
-            <a href="admin.html" class="btn" style="background-color: #28a745; text-decoration: none;">Admin Panel 🔐</a>
-            <button id="nav-logout-btn" class="btn btn-danger hidden" onclick="logoutUser()">Logout</button>
-        </div>
-    </header>
-
-    <div id="home-page" class="main-container section-view">
-        <div>
-            <div class="section-box" style="border-top-color: #2a5298;">
-                <h2>🔍 क्विक अकाउंट बैलेंस सर्च (Quick Due Check)</h2>
-                <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">अपना मोबाइल नंबर या UID डालकर तुरंत अपनी बकाया उधारी (Due) चेक करें:</p>
-                <div class="search-box">
-                    <input type="text" id="global-search-input" class="search-input" placeholder="अपना 10 अंकों का मोबाइल नंबर या UID दर्ज करें...">
-                    <button class="btn-search" onclick="searchCustomerDue()">खोजें 🔎</button>
-                </div>
-                <div id="search-result" class="search-result-card">
-                    <h3 style="color: #b78103; margin-bottom: 5px;">📋 खाते का विवरण:</h3>
-                    <p><b>ग्राहक का नाम:</b> <span id="res-name">-</span></p>
-                    <p><b>मोबाइल नंबर:</b> <span id="res-phone">-</span></p>
-                    <p><b>कुल बकाया राशि (Due):</b> <span id="res-due" style="color:red; font-weight:bold; font-size:1.2rem;">₹0</span></p>
-                </div>
-            </div>
-
-            <div class="section-box">
-                <h2>📌 लाइव फॉर्म अपडेट और नोटिफिकेशन</h2>
-                <div id="notifications-list"><p>लोड हो रहा है...</p></div>
-            </div>
-        </div>
-
-        <div class="appointment-box">
-            <h2>📅 आज का अपॉइंटमेंट शेड्यूल</h2>
-            <div class="time-slot"><span>10:00 AM - 12:00 PM</span><span class="status-tag status-busy">🔴 व्यस्त (Busy)</span></div>
-            <div class="time-slot"><span>12:00 PM - 02:00 PM</span><span class="status-tag status-free">🟢 खाली (Available)</span></div>
-            <br>
-            <button class="btn" style="width: 100%; margin: 0;" onclick="showSection('public-login-section')">बुक करने के लिए लॉगिन करें</button>
-        </div>
+    <div class="header">
+        <h1>🏁 प्रीतम ऑनलाइन सेंटर</h1>
+        <p>पीरी बाज़ार, लखीसराय (बिहार) - डिजिटल सेवा केंद्र</p>
     </div>
-
-    <div id="public-login-section" class="login-card hidden section-view">
-        <h2>👤 Public Login</h2>
-        <input type="email" id="public-email" placeholder="अपनी ईमेल आईडी डालें">
-        <input type="password" id="public-password" placeholder="पासवर्ड डालें">
-        <button class="btn" style="width: 100%; margin: 10px 0;" onclick="loginUser()">लॉगिन करें</button>
-        <p>नया अकाउंट बनाना है? <a onclick="showSection('public-register-section')">यहाँ रजिस्ट्रेशन करें</a></p>
-    </div>
-
-    <div id="public-register-section" class="login-card hidden section-view">
-        <h2>📝 Public Registration</h2>
-        <input type="text" id="reg-name" placeholder="अपना पूरा नाम डालें">
-        <input type="text" id="reg-mobile" placeholder="मोबाइल नंबर डालें">
-        <input type="email" id="reg-email" placeholder="ईमेल आईडी">
-        <input type="password" id="reg-password" placeholder="एक मजबूत पासवर्ड बनाएं">
-        <button class="btn" style="width: 100%; margin: 10px 0; background-color: #28a745;" onclick="registerUser()">रजिस्ट्रेशन की रिक्वेस्ट भेजें</button>
-        <p>पहले से अकाउंट है? <a onclick="showSection('public-login-section')">यहाँ लॉगिन करें</a></p>
-    </div>
-
-    <!-- CUSTOMER DASHBOARD -->
-    <div id="customer-dashboard" class="container hidden section-view" style="max-width:900px; margin: 30px auto; background:white; padding:30px; border-radius:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-        <h2 style="color:#1e3c72;">👋 स्वागत है, <span id="user-display-name">ग्राहक</span>!</h2>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:15px;">
-            <div class="section-box" style="border-top-color:#ff9800;">
-                <h3>📅 नया अपॉइंटमेंट बुक करें</h3>
-                <input type="date" id="apt-date"><select id="apt-time"><option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option><option value="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM</option></select>
-                <button class="btn" style="width:100%; background:#ff9800;" onclick="bookAppointment()">बुक करें</button>
-                
-                <h4 style="margin-top:15px; font-size:0.9rem;">📋 आपके अपॉइंटमेंट का स्टेटस:</h4>
-                <div id="user-apt-status" style="font-size:0.85rem; margin-top:5px; padding:5px; background:#f0f2f5; border-radius:5px;">लोड हो रहा है...</div>
-            </div>
-            <div class="section-box" style="border-top-color:#28a745; text-align:center;">
-                <h3>💰 आपका लेजर बैलेंस</h3>
-                <h1 style="color:#dc3545; font-size:3rem; margin:10px 0;">₹<span id="ledger-due">0</span></h1>
-            </div>
-        </div>
-        <div class="section-box" style="border-top-color:#1e3c72;">
-            <h3>📜 आपका फॉर्म फिलअप इतिहास और दस्तावेज़ (History & Documents)</h3>
-            <table class="ledger-table">
-                <thead>
-                    <tr>
-                        <th>तारीख</th>
-                        <th>काम का विवरण</th>
-                        <th>कुल चार्ज</th>
-                        <th>जमा</th>
-                        <th>दस्तावेज़ (File)</th>
-                    </tr>
-                </thead>
-                <tbody id="history-rows"></tbody>
-            </table>
+    <div class="main-container">
+        <div class="section-title">📢 लाइव सरकारी फॉर्म एवं सूचनाएं</div>
+        <div id="live-notice-board">लोड हो रहा है...</div>
+        
+        <div class="section-title">📅 दुकान आने के लिए समय स्लॉट बुक करें</div>
+        <div class="booking-box">
+            <input type="date" id="apt-date">
+            <select id="apt-time">
+                <option value="">समय स्लॉट चुनें</option>
+                <option value="08:00 AM - 10:00 AM">सुबह 08:00 से 10:00</option>
+                <option value="10:00 AM - 01:00 PM">सुबह 10:00 से दोपहर 01:00</option>
+                <option value="01:00 PM - 04:00 PM">दोपहर 01:00 से शाम 04:00</option>
+                <option value="04:00 PM - 07:00 PM">शाम 04:00 से रात 07:00</option>
+            </select>
+            <button id="btn-customer-book">अपॉइंटमेंट बुक करें 🚀</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { initIndexManager, bookCustomerAppointment } from "./index_logic.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
@@ -165,169 +57,15 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
+        initIndexManager(db);
 
-        window.showSection = function(id) {
-            document.querySelectorAll('.section-view').forEach(el => el.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
+        const currentCustomerUID = "DEMO_USER_ID";
+        const currentCustomerName = "सतीश कुमार (ग्राहक)";
 
-        // ⚙️ डेटाबेस से सेटिंग्स लोड करने का फंक्शन
-        async function loadSystemSettings() {
-            try {
-                const docSnap = await getDoc(doc(db, "system", "config"));
-                if(docSnap.exists()) {
-                    const data = docSnap.data();
-                    if(data.shop_name) {
-                        document.getElementById('site-title').innerText = data.shop_name;
-                        document.getElementById('shop-header-name').innerText = data.shop_name + " 🖥️";
-                    }
-                    if(data.address && data.mobile) {
-                        document.getElementById('shop-header-desc').innerText = `पता: ${data.address} | हेल्पलाइन: ${data.mobile}`;
-                    }
-                }
-            } catch (e) { console.log("सिस्टम सेटिंग्स लोड करने में त्रुटि:", e.message); }
-        }
-        loadSystemSettings();
-
-        async function loadNotifications() {
-            const listDiv = document.getElementById('notifications-list');
-            listDiv.innerHTML = "";
-            const querySnapshot = await getDocs(collection(db, "notifications"));
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                listDiv.innerHTML += `
-                    <div class="form-notice">
-                        <h3>${data.title}</h3>
-                        <p><strong>दस्तावेज़:</strong> ${data.docs || '-'}</p>
-                        <div class="form-details">
-                            <div>📅 <b>शुरू:</b> ${data.start_date || '-'}</div>
-                            <div>⚠️ <b>लास्ट डेट:</b> ${data.last_date || '-'}</div>
-                        </div>
-                    </div>`;
-            });
-        }
-        loadNotifications();
-
-        window.searchCustomerDue = async function() {
-            const input = document.getElementById('global-search-input').value.trim();
-            const resultCard = document.getElementById('search-result');
-            if(!input) return alert("कृपया मोबाइल नंबर या UID दर्ज करें!");
-            resultCard.style.display = "none";
-            try {
-                const querySnapshot = await getDocs(collection(db, "customers"));
-                let found = false;
-                querySnapshot.forEach((documentSnap) => {
-                    const data = documentSnap.data();
-                    const uid = documentSnap.id;
-                    if (uid === input || data.mobile === input) {
-                        found = true;
-                        document.getElementById('res-name').innerText = data.name;
-                        document.getElementById('res-phone').innerText = data.mobile;
-                        document.getElementById('res-due').innerText = `₹${data.total_due || 0}`;
-                        resultCard.style.display = "block";
-                    }
-                });
-                if(!found) alert("❌ कोई ग्राहक रिकॉर्ड नहीं मिला!");
-            } catch (e) { alert("त्रुटि: " + e.message); }
-        }
-
-        window.registerUser = async function() {
-            const name = document.getElementById('reg-name').value.trim();
-            const mobile = document.getElementById('reg-mobile').value.trim();
-            const email = document.getElementById('reg-email').value.trim().toLowerCase();
-            const password = document.getElementById('reg-password').value.trim();
-            if(!name || !mobile || !email || !password) return alert("सभी जानकारी भरें!");
-            try {
-                const res = await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, "customers", res.user.uid), { name: name, mobile: mobile, email: email, total_due: 0, status: "Pending" });
-                alert("रजिस्ट्रेशन की रिक्वेस्ट भेज दी गई है! कृपया एडमिन (प्रीतम कुमार) द्वारा अप्रूव होने का इंतजार करें।");
-                await signOut(auth);
-                window.location.reload(); 
-            } catch (e) { alert("रजिस्ट्रेशन एरर: " + e.message); }
-        }
-
-        window.loginUser = function() {
-            const email = document.getElementById('public-email').value.trim().toLowerCase();
-            const password = document.getElementById('public-password').value.trim();
-            if(!email || !password) return alert("ईमेल और पासवर्ड भरें!");
-            signInWithEmailAndPassword(auth, email, password).catch(err => alert("लॉगिन एरर: " + err.message));
-        }
-
-        window.logoutUser = function() { signOut(auth).then(() => { window.location.reload(); }); }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const docSnap = await getDoc(doc(db, "customers", user.uid));
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if(data.status === "Pending" && user.email.toLowerCase() !== "pk199166@gmail.com") {
-                        alert("🔴 आपका अकाउंट अभी पेंडिंग है।");
-                        await signOut(auth);
-                        window.location.reload();
-                        return;
-                    }
-                    document.getElementById('nav-login-btn').classList.add('hidden');
-                    document.getElementById('nav-logout-btn').classList.remove('hidden');
-                    showSection('customer-dashboard');
-                    document.getElementById('user-display-name').innerText = data.name + " (UID: " + user.uid + ")";
-                    document.getElementById('ledger-due').innerText = data.total_due || 0;
-                    loadUserHistory(user.uid);
-                    loadUserAptStatus(user.uid); 
-                }
-            } else {
-                document.getElementById('nav-login-btn').classList.remove('hidden');
-                document.getElementById('nav-logout-btn').classList.add('hidden');
-                showSection('home-page');
-            }
-        });
-
-        async function loadUserHistory(uid) {
-            const tbody = document.getElementById('history-rows');
-            tbody.innerHTML = "";
-            const querySnapshot = await getDocs(collection(db, `customers/${uid}/history`));
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const dlBtn = data.file_link ? `<a href="${data.file_link}" target="_blank" class="btn-dl-link">Download 📥</a>` : `<span style="color:#aaa;">No File</span>`;
-                tbody.innerHTML += `<tr>
-                    <td>${data.date}</td>
-                    <td>${data.work}</td>
-                    <td>₹${data.total}</td>
-                    <td>₹${data.paid}</td>
-                    <td>${dlBtn}</td>
-                </tr>`;
-            });
-        }
-
-        async function loadUserAptStatus(uid) {
-            const statusDiv = document.getElementById('user-display-name') ? document.getElementById('user-apt-status') : null;
-            if(!statusDiv) return;
-            statusDiv.innerHTML = "";
-            const querySnapshot = await getDocs(collection(db, "appointments"));
-            let hasApt = false;
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if(data.userId === uid) {
-                    hasApt = true;
-                    let color = data.status === "Approved" ? "green" : (data.status === "Rejected" ? "red" : "orange");
-                    statusDiv.innerHTML += `<div>📅 ${data.date} (${data.time}) - <span style="color:${color}; font-weight:bold;">${data.status}</span></div>`;
-                }
-            });
-            if(!hasApt) statusDiv.innerHTML = "कोई पुराना अपॉइंटमेंट बुक नहीं है।";
-        }
-
-        window.bookAppointment = async function() {
-            const user = auth.currentUser;
-            const date = document.getElementById('apt-date').value;
-            const time = document.getElementById('apt-time').value;
-            if(!date || !time) return alert("तारीख और समय चुनें!");
-            try {
-                await addDoc(collection(db, "appointments"), { userId: user.uid, date: date, time: time, status: "Pending" });
-                alert("अपॉइंटमेंट बुक हो गया है! स्टेटस चेक करते रहें।");
-                loadUserAptStatus(user.uid);
-            } catch (e) { alert(e.message); }
-        }
+        document.getElementById('btn-customer-book').onclick = function() {
+            bookCustomerAppointment(currentCustomerUID, currentCustomerName);
+        };
     </script>
 </body>
 </html>
