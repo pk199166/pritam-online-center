@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pritam Center - Balance Sheet</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f8fafc; padding: 20px; color: #1e293b; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 6px solid #17a2b8; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px; }
+        .header h2 { color: #17a2b8; }
+        
+        .table-section { margin-bottom: 30px; }
+        .table-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #334155; display: flex; justify-content: space-between; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 15px; }
+        th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
+        th { background-color: #f1f5f9; color: #475569; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        
+        .text-green { color: #16a34a; font-weight: bold; }
+        .text-red { color: #dc2626; font-weight: bold; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+        .badge-income { background-color: #dcfce7; color: #15803d; }
+        .badge-expense { background-color: #fee2e2; color: #b91c1c; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>📊 प्रीतम ऑनलाइन सेंटर - डेली बैलेंस शीट</h2>
+            <button onclick="window.print()" style="padding: 8px 15px; background: #475569; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ प्रिंट रिपोर्ट</button>
+        </div>
+
+        <!-- 💰 लेन-देन का इतिहास -->
+        <div class="table-section">
+            <div class="table-title"><span>📝 हालिया काम एवं ट्रांजेक्शंस (Income Ledger)</span></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>तारीख</th>
+                        <th>ग्राहक का नाम</th>
+                        <th>काम का विवरण</th>
+                        <th>कुल चार्ज</th>
+                        <th>जमा राशि</th>
+                        <th>बाकी उधारी</th>
+                    </tr>
+                </thead>
+                <tbody id="income-table-body">
+                    <tr><td colspan="6" style="text-align:center; color:#64748b;">डेटा लोड हो रहा है...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 💸 खर्च का इतिहास -->
+        <div class="table-section">
+            <div class="table-title"><span>💸 दुकान के खर्चे (Expense Ledger)</span></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>तारीख</th>
+                        <th>खर्च का विवरण</th>
+                        <th>राशि (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-table-body">
+                    <tr><td colspan="3" style="text-align:center; color:#64748b;">डेटा लोड हो रहा है...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
+            authDomain: "pritam-online-center.firebaseapp.com",
+            projectId: "pritam-online-center",
+            storageBucket: "pritam-online-center.firebasestorage.app",
+            messagingSenderId: "310541912344",
+            appId: "1:310541912344:web:3f05beef1626edfe2f766d",
+            measurementId: "G-T87S6TXHR6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadBalanceSheetData() {
+            try {
+                // 1. ट्रांजेक्शंस लोड करना
+                const trxQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"));
+                const trxSnapshot = await getDocs(trxQuery);
+                const incomeBody = document.getElementById('income-table-body');
+                incomeBody.innerHTML = "";
+
+                if(trxSnapshot.empty) {
+                    incomeBody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>कोई लेन-देन नहीं मिला।</td></tr>";
+                } else {
+                    trxSnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${data.date || '-'}</td>
+                            <td><b>${data.customerName || 'अज्ञात'}</b></td>
+                            <td>${data.workTitle || '-'}</td>
+                            <td>₹${data.totalAmount || 0}</td>
+                            <td class="text-green">₹${data.paidAmount || 0}</td>
+                            <td class="${data.dueAmount > 0 ? 'text-red' : ''}">₹${data.dueAmount || 0}</td>
+                        `;
+                        incomeBody.appendChild(row);
+                    });
+                }
+
+                // 2. खर्चे लोड करना
+                const expQuery = query(collection(db, "expenses"), orderBy("timestamp", "desc"));
+                const expSnapshot = await getDocs(expQuery);
+                const expenseBody = document.getElementById('expense-table-body');
+                expenseBody.innerHTML = "";
+
+                if(expSnapshot.empty) {
+                    expenseBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>कोई खर्च दर्ज नहीं है।</td></tr>";
+                } else {
+                    expSnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${data.date || '-'}</td>
+                            <td>${data.title || '-'}</td>
+                            <td class="text-red">₹${data.amount || 0}</td>
+                        `;
+                        expenseBody.appendChild(row);
+                    });
+                }
+
+            } catch (e) {
+                console.error("डेटा लोड एरर: ", e);
+                document.getElementById('income-table-body').innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>डेटा लोड करने में विफल। सुनिश्चित करें कि आप एडमिन हैं।</td></tr>";
+            }
+        }
+
+        // डेटा लोड फंक्शन चलाएं
+        loadBalanceSheetData();
+    </script>
+</body>
+</html>
