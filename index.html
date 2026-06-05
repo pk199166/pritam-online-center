@@ -3,62 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>प्रीतम ऑनलाइन सेंटर - पीरी बाज़ार</title>
+    <title>Pritam Online Center</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f4f6f9; color: #333; padding: 15px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 6px solid #28a745; }
-        h1 { text-align: center; color: #28a745; margin-bottom: 5px; font-size: 1.8rem; }
-        .shop-info { text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; }
+        body { background-color: #f0f4f8; color: #333; }
         
-        /* 🔍 सर्च बॉक्स का डिज़ाइन */
-        .search-box-section { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ced4da; }
-        .search-box-section h3 { font-size: 15px; margin-bottom: 10px; color: #495057; display: flex; align-items: center; gap: 5px; }
-        .search-input-group { display: flex; gap: 8px; }
-        .search-input-group input { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
-        .search-input-group button { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* 🔵 प्रीमियम ब्लू हेडर सेक्शन */
+        .hero-header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; text-align: center; padding: 40px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 10px 20px rgba(30,60,114,0.15); }
+        .hero-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; letter-spacing: 0.5px; }
+        .hero-header p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 25px; font-weight: 300; }
         
+        /* 🎛️ नेविगेशन बटन ग्रुप */
+        .btn-group { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .nav-btn { padding: 12px 24px; border-radius: 25px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-home { background-color: #00b4d8; color: white; }
+        .btn-public { background-color: #ff9100; color: white; }
+        .btn-admin { background-color: #28a745; color: white; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); filter: brightness(1.05); }
+
+        /* 📐 मेन ग्रिड लेआउट */
+        .main-layout { max-width: 1200px; margin: 30px auto; padding: 0 15px; display: grid; grid-template-columns: 7fr 4fr; gap: 25px; }
+        .card-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-bottom: 25px; }
+        
+        /* 🔍 सर्च बॉक्स स्टाइल */
+        .search-card { border-top: 5px solid #1e3c72; }
+        .card-title { font-size: 1.4rem; color: #1e3c72; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .card-subtitle { font-size: 14px; color: #64748b; margin-bottom: 15px; }
+        
+        .search-inner-box { border: 2px dashed #cbd5e1; padding: 20px; border-radius: 10px; background-color: #f8fafc; }
+        .search-group { display: flex; gap: 10px; }
+        .search-group input { flex: 1; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
+        .search-group input:focus { border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30,60,114,0.1); }
+        .search-group button { padding: 0 25px; background-color: #1e3c72; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .search-group button:hover { background-color: #152b52; }
+
         /* 📋 सर्च रिज़ल्ट का डिज़ाइन */
-        .search-results { display: none; margin-top: 15px; background: #fff; border-left: 4px solid #17a2b8; padding: 12px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .history-item { border-bottom: 1px dashed #dee2e6; padding: 10px 0; font-size: 14px; }
+        .search-results { display: none; margin-top: 20px; background: #fff; border-left: 5px solid #00b4d8; padding: 15px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .history-item { border-bottom: 1px dashed #e2e8f0; padding: 12px 0; font-size: 15px; }
         .history-item:last-child { border-bottom: none; }
-        .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .status-badge { padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
         .status-done { background: #d4edda; color: #155724; }
         .status-pending { background: #fff3cd; color: #856404; }
-        
-        .announcement { background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; text-align: center; font-size: 14px; border: 1px solid #ffeeba; }
-        .btn-booking { display: block; width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; box-shadow: 0 3px 6px rgba(0,123,255,0.2); }
+
+        /* 📌 लाइव फॉर्म और नोटिफिकेशन कार्ड */
+        .notice-card { border-top: 5px solid #ff4757; }
+        .announcement-box { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 15px; border-left: 5px solid #ff4757; margin-top: 15px; }
+
+        /* 📅 राइट साइड अपॉइंटमेंट शेड्यूल कार्ड */
+        .apt-card { border-top: 5px solid #ff9100; height: fit-content; }
+        .apt-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f5f9; font-size: 15px; }
+        .apt-row:last-child { border-bottom: none; }
+        .time-txt { font-weight: 600; color: #475569; }
+        .badge-status { padding: 5px 12px; border-radius: 15px; font-size: 13px; font-weight: bold; }
+        .badge-busy { background-color: #ffe2e2; color: #dc3545; }
+        .badge-avail { background-color: #d1fae5; color: #28a745; }
+        .btn-book-action { display: block; width: 100%; text-align: center; background: linear-gradient(45deg, #ff9100, #ff6b00); color: white; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 10px rgba(255,145,0,0.3); transition: 0.2s; }
+        .btn-book-action:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(255,145,0,0.4); }
+
+        /* 📱 रिस्पॉन्सिव मोबाइल व्यू */
+        @media (max-width: 850px) {
+            .main-layout { grid-template-columns: 1fr; margin: 15px auto; }
+            .hero-header h1 { font-size: 1.8rem; }
+            .hero-header p { font-size: 14px; }
+            .nav-btn { padding: 10px 18px; font-size: 13px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1> must_be_redacted_for_privacy_reasons</h1>
-        <div class="shop-info">📍 पीरी बाज़ार, लखीसराय (बिहार)</div>
+    <div class="hero-header">
+        <h1>Pritam Online Center 🖥️</h1>
+        <p>हमारे यहाँ सभी ऑनलाइन फॉर्म, ज़ेरॉक्स, उधारी और डिजिटल काम मैनेज करने की सुविधा है।</p>
+        
+        <div class="btn-group">
+            <a href="index.html" class="nav-btn btn-home">Home 🏠</a>
+            <a href="appointment.html" class="nav-btn btn-public">Public Login 👤</a>
+            <a href="admin.html" class="nav-btn btn-admin">Admin Panel 🔐</a>
+        </div>
+    </div>
 
-        <!-- 📢 लाइव घोषणा / नोटिस बोर्ड -->
-        <div id="live-announcement" class="announcement">📢 दुकान खुली है, आप अपना काम करवा सकते हैं।</div>
+    <div class="main-layout">
+        
+        <div>
+            <div class="card-box search-card">
+                <div class="card-title">🔍 क्विक अकाउंट बैलेंस सर्च (Quick Due Check)</div>
+                <div class="card-subtitle">अपना मोबाइल नंबर या UID डालकर तुरंत अपनी बकाया उधारी (Due) चेक करें:</div>
+                
+                <div class="search-inner-box">
+                    <div class="search-group">
+                        <input type="text" id="cust-search-query" placeholder="अपना 10 अंकों का मोबाइल नंबर या UID दर्ज करें...">
+                        <button id="btn-cust-search">खोजें 🔎</button>
+                    </div>
+                </div>
 
-        <!-- 🔍 ग्राहक सर्च बॉक्स (नया फीचर) -->
-        <div class="search-box-section">
-            <h3>🔍 अपना काम और पैसे का हिसाब देखें</h3>
-            <div class="search-input-group">
-                <input type="text" id="cust-search-query" placeholder="अपना नाम या मोबाइल नंबर डालें...">
-                <button id="btn-cust-search">खोजें 🔎</button>
+                <div id="search-results-area" class="search-results">
+                    <h4 style="color: #1e3c72; margin-bottom: 10px; font-size: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">📊 आपके काम एवं खाते की हिस्ट्री:</h4>
+                    <div id="history-list"></div>
+                </div>
             </div>
-            
-            <!-- यहाँ सर्च का रिज़ल्ट दिखेगा -->
-            <div id="search-results-area" class="search-results">
-                <h4 style="color: #17a2b8; margin-bottom: 8px; font-size: 15px;">📊 आपके काम का इतिहास (History):</h4>
-                <div id="history-list"></div>
+
+            <div class="card-box notice-card">
+                <div class="card-title">📌 लाइव फॉर्म अपडेट और नोटिफिकेशन</div>
+                <div id="live-announcement" class="announcement-box">📢 दुकान खुली है, आप अपना काम करवा सकते हैं।</div>
             </div>
         </div>
 
-        <!-- 📅 ऑनलाइन अपॉइंटमेंट बटन -->
-        <a href="#" id="booking-btn" class="btn-booking">📅 घर बैठे अपॉइंटमेंट बुक करें</a>
+        <div>
+            <div class="card-box apt-card">
+                <div class="card-title" style="color: #ff9100; font-size: 1.3rem;">📅 आज का अपॉइंटमेंट शेड्यूल</div>
+                
+                <div style="margin-top: 15px;">
+                    <div class="apt-row">
+                        <span class="time-txt">10:00 AM - 12:00 PM</span>
+                        <span class="badge-status badge-busy">🔴 व्यस्त (Busy)</span>
+                    </div>
+                    <div class="apt-row">
+                        <span class="time-txt">12:00 PM - 02:00 PM</span>
+                        <span class="badge-status badge-avail">🟢 खाली (Available)</span>
+                    </div>
+                    <div class="apt-row">
+                        <span class="time-txt">02:00 PM - 05:00 PM</span>
+                        <span class="badge-status badge-avail">🟢 खाली (Available)</span>
+                    </div>
+                </div>
+
+                <a href="appointment.html" class="btn-book-action">बुक करने के लिए लॉगिन करें</a>
+            </div>
+        </div>
+
     </div>
 
-    <!-- लॉजिक फ़ाइल को मॉड्यूल की तरह जोड़ना -->
     <script type="module" src="index_logic.js"></script>
 </body>
 </html>
