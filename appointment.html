@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pritam Center - Book Appointment</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f4f6f9; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: 30px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #007bff; }
+        h2 { text-align: center; color: #007bff; margin-bottom: 20px; font-size: 1.6rem; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 15px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        .btn-submit { background-color: #007bff; color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background-color: #0056b3; }
+        .back-link { display: inline-block; margin-top: 15px; color: #666; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📅 ऑनलाइन अपॉइंटमेंट बुकिंग</h2>
+        
+        <form id="appointment-form">
+            <div class="form-group">
+                <label>आपका नाम (Full Name)</label>
+                <input type="text" id="cust-name" placeholder="अपना पूरा नाम दर्ज करें..." required>
+            </div>
+            
+            <div class="form-group">
+                <label>मोबाइल नंबर (Mobile Number)</label>
+                <input type="tel" id="cust-phone" placeholder="10 अंकों का मोबाइल नंबर..." pattern="[0-9]{10}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>काम का प्रकार (Select Work)</label>
+                <select id="work-type" required>
+                    <option value="">-- काम चुनें --</option>
+                    <option value="Aadhaar Work">आधार कार्ड का काम</option>
+                    <option value="Pan Card">नया पैन कार्ड / सुधार</option>
+                    <option value="Form Apply">सरकारी फॉर्म / वैकेंसी</option>
+                    <option value="Certificate">जाति / आवासीय / आय प्रमाण पत्र</option>
+                    <option value="Banking">पैसे निकालना / जमा करना</option>
+                    <option value="Other">अन्य ऑनलाइन काम</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>अतिरिक्त विवरण (Optional Notes)</label>
+                <textarea id="work-desc" rows="3" placeholder="काम के बारे में कुछ और बताना चाहें तो यहाँ लिखें..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">अपॉइंटमेंट बुक करें 🚀</button>
+        </form>
+        
+        <center><a href="index.html" class="back-link">← वापस मुख्य पेज पर जाएँ</a></center>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
+            authDomain: "pritam-online-center.firebaseapp.com",
+            projectId: "pritam-online-center",
+            storageBucket: "pritam-online-center.firebasestorage.app",
+            messagingSenderId: "310541912344",
+            appId: "1:310541912344:web:3f05beef1626edfe2f766d",
+            measurementId: "G-T87S6TXHR6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('appointment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const work = document.getElementById('work-type').value;
+            const desc = document.getElementById('work-desc').value.trim();
+
+            try {
+                // डेटाबेस के appointments कलेक्शन में बुकिंग सेव करना
+                await addDoc(collection(db, "appointments"), {
+                    customerName: name,
+                    customerPhone: phone,
+                    workTitle: work,
+                    notes: desc,
+                    status: "Pending",
+                    timestamp: serverTimestamp(),
+                    date: new Date().toLocaleDateString('en-GB')
+                });
+
+                alert("🎉 बधाई हो! आपका अपॉइंटमेंट सफलतापूर्वक बुक हो गया है। प्रीतम जी जल्द ही आपसे संपर्क करेंगे।");
+                document.getElementById('appointment-form').reset();
+                window.location.href = "index.html";
+            } catch (error) {
+                alert("बिल्कुल खेद है! बुकिंग में समस्या आई: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
