@@ -12,7 +12,7 @@
         .admin-top-bar h2 { color: #28a745; font-size: 1.8rem; }
         .admin-btn-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         
-        /* 📊 लाइव स्टैट्स कार्ड्स */
+        /* 📊 Live Stats Cards */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .stat-card h4 { font-size: 14px; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
@@ -44,6 +44,7 @@
         .receipt-container { background: #fff; padding: 20px; border: 2px solid #333; max-width: 450px; margin: 20px auto; border-radius: 10px; font-family: monospace; }
         .receipt-header { text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px; margin-bottom: 10px; }
         .receipt-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 14px; }
+        .smart-searching { background: #fff3cd !important; border-color: #ffc107 !important; }
         @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .admin-top-bar { flex-direction: column; text-align: center; } .admin-btn-group { justify-content: center; width: 100%; } }
         @media print { body * { visibility: hidden; } #receipt-print-zone, #receipt-print-zone * { visibility: visible; } #receipt-print-zone { position: absolute; left: 0; top: 0; width: 100%; } }
     </style>
@@ -70,7 +71,6 @@
             </div>
         </div>
 
-        <!-- 📊 लाइव डैशबोर्ड कार्ड्स -->
         <div class="stats-grid">
             <div class="stat-card" style="border-top: 4px solid #28a745;">
                 <h4>💰 आज का कलेक्शन</h4>
@@ -102,12 +102,18 @@
 
             <div class="box" style="border-top: 4px solid #1e3c72;">
                 <h3 style="color: #1e3c72; margin-bottom: 15px;">💰 ग्राहक खाता प्रबंधन (Ledger Updates)</h3>
-                <input type="text" id="cust-uid" placeholder="यहाँ ग्राहक की UID पेस्ट करें">
+                <p style="font-size: 12px; color: #64748b; margin-bottom: 10px;">*तीनों में से कोई भी एक लिखने पर पुराना डेटा अपने आप आ जाएगा।</p>
+                
+                <input type="text" id="cust-uid" placeholder="UID दर्ज करें (उदा: POC-2026-001)" onchange="checkExistingCustomer('uid')">
+                <input type="text" id="cust-name" placeholder="ग्राहक का नाम दर्ज करें" onchange="checkExistingCustomer('name')">
+                <input type="tel" id="cust-phone" placeholder="मोबाइल नंबर दर्ज करें" onchange="checkExistingCustomer('phone')">
+                
                 <input type="text" id="work-title" placeholder="काम का विवरण">
                 <input type="number" id="total-amt" placeholder="कुल charge (₹)">
                 <input type="number" id="paid-amt" placeholder="जमा की गई राशि (₹)">
                 <input type="text" id="cust-file-link" placeholder="डॉक्यूमेंट का लिंक डालें (Optional)">
-                <button class="btn-submit" style="background:#1e3c72; margin-bottom: 20px;" onclick="updateCustomerLedger()">खाते में अपडेट करें और रसीद बनाएं</button>
+                <button class="btn-submit" style="background:#1e3c72; margin-bottom: 20px;" onclick="processSmartLedger()">खाते में अपडेट करें और रसीद बनाएं</button>
+                
                 <h3 style="color: #dc3545; border-top: 1px solid #eee; padding-top: 20px; margin-bottom: 10px;">💸 दुकान का खर्च दर्ज करें (Expenses)</h3>
                 <input type="text" id="exp-title" placeholder="खर्च का विवरण">
                 <input type="number" id="exp-amt" placeholder="खर्च राशि (₹)">
@@ -116,7 +122,6 @@
         </div>
     </div>
 
-    <!-- 👥 ग्राहक मोडल -->
     <div id="users-modal" class="user-modal-bg hidden">
         <div class="user-modal-content">
             <span class="close-btn" onclick="closeUsersModal()">&times;</span>
@@ -125,7 +130,6 @@
         </div>
     </div>
 
-    <!-- 📅 अपॉइंटमेंट मोडल -->
     <div id="apt-modal" class="user-modal-bg hidden">
         <div class="user-modal-content">
             <span class="close-btn" onclick="closeAptModal()">&times;</span>
@@ -138,7 +142,6 @@
         </div>
     </div>
 
-    <!-- 🖨️ रसीद मोडल -->
     <div id="receipt-modal" class="user-modal-bg hidden">
         <div class="user-modal-content" style="max-width:500px;">
             <span class="close-btn" onclick="closeReceiptModal()">&times;</span>
@@ -151,8 +154,10 @@
                         <p>---------------------------</p>
                         <h3>** नगद/उधारी रसीद (INVOICE) **</h3>
                     </div>
+                    <div class="receipt-row"><span>कस्टमर ID:</span><span id="rcpt-uid" style="font-weight:bold; color:#007bff;">-</span></div>
                     <div class="receipt-row"><span>दिनांक:</span><span id="rcpt-date">-</span></div>
                     <div class="receipt-row"><span>ग्राहक नाम:</span><span id="rcpt-name">-</span></div>
+                    <div class="receipt-row"><span>मोबाइल नंबर:</span><span id="rcpt-phone">-</span></div>
                     <div class="receipt-row"><span>काम का विवरण:</span><span id="rcpt-work">-</span></div>
                     <p>---------------------------</p>
                     <div class="receipt-row"><span>कुल चार्ज:</span><b>₹<span id="rcpt-total">0</span></b></div>
@@ -169,7 +174,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
         import { initAuthManager } from "./auth.js";
         import { initDashboardManager, calculateLiveStats } from "./dashboard.js";
@@ -220,6 +225,101 @@
         window.saveNotification = saveNotification;
         window.cancelEdit = cancelEdit;
         window.deleteNotice = deleteNotice;
+
+        // 🔍 Auto-Search Logic on Input Change
+        window.checkExistingCustomer = async function(type) {
+            let val = "";
+            let fieldName = "";
+            
+            if (type === 'uid') { val = document.getElementById('cust-uid').value.trim(); fieldName = "customerID"; }
+            if (type === 'name') { val = document.getElementById('cust-name').value.trim(); fieldName = "customerName"; }
+            if (type === 'phone') { val = document.getElementById('cust-phone').value.trim(); fieldName = "customerPhone"; }
+
+            if (!val) return;
+
+            try {
+                const txRef = collection(db, "transactions");
+                const q = query(txRef, where(fieldName, "==", val));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const data = querySnapshot.docs[0].data();
+                    
+                    // Autofill background colors to show visual feedback
+                    document.getElementById('cust-uid').classList.add('smart-searching');
+                    document.getElementById('cust-name').classList.add('smart-searching');
+                    document.getElementById('cust-phone').classList.add('smart-searching');
+
+                    // Autofill fields
+                    document.getElementById('cust-uid').value = data.customerID || data.customerUid || "";
+                    document.getElementById('cust-name').value = data.customerName || "";
+                    document.getElementById('cust-phone').value = data.customerPhone || "";
+
+                    setTimeout(() => {
+                        document.getElementById('cust-uid').classList.remove('smart-searching');
+                        document.getElementById('cust-name').classList.remove('smart-searching');
+                        document.getElementById('cust-phone').classList.remove('smart-searching');
+                    }, 1000);
+                }
+            } catch (err) {
+                console.log("Search error: ", err.message);
+            }
+        };
+
+        // 🧠 Smart ID Verification & Data Entry Processing
+        window.processSmartLedger = async function() {
+            let uid = document.getElementById('cust-uid').value.trim();
+            let name = document.getElementById('cust-name').value.trim();
+            let phone = document.getElementById('cust-phone').value.trim();
+
+            if (!uid && !name && !phone) {
+                alert("Kripya UID, Naam ya Mobile Number me se koi bhi EK chiz jarur bharen!");
+                return;
+            }
+
+            try {
+                const txRef = collection(db, "transactions");
+                
+                // If UID is empty, let's look up if this customer exists by phone/name, or generate a new serial ID
+                if (!uid) {
+                    let foundUid = "";
+                    const allSnapshot = await getDocs(txRef);
+                    const uniqueIDs = new Set();
+
+                    allSnapshot.forEach(doc => {
+                        const d = doc.data();
+                        if (d.customerID) uniqueIDs.add(d.customerID);
+                        if (d.customerPhone === phone && phone !== "") foundUid = d.customerID;
+                        if (d.customerName === name && name !== "" && foundUid === "") foundUid = d.customerID;
+                    });
+
+                    if (foundUid) {
+                        uid = foundUid;
+                    } else {
+                        // Generate brand new unique sequential ID
+                        const nextNum = uniqueIDs.size + 1;
+                        uid = `POC-2026-${String(nextNum).padStart(3, '0')}`;
+                    }
+                    
+                    document.getElementById('cust-uid').value = uid;
+                }
+
+                // Fill details into printing receipt elements
+                if(document.getElementById('rcpt-uid')) document.getElementById('rcpt-uid').innerText = uid;
+                if(document.getElementById('rcpt-phone')) document.getElementById('rcpt-phone').innerText = phone || "N/A";
+
+                // Call the standard ledger save function from ledger.js
+                await updateCustomerLedger();
+                
+                // Reset custom inputs after successful save
+                document.getElementById('cust-uid').value = "";
+                document.getElementById('cust-name').value = "";
+                document.getElementById('cust-phone').value = "";
+                
+            } catch (error) {
+                alert("Smart Entry Error: " + error.message);
+            }
+        };
 
         async function loadSystemConfig() {
             try {
