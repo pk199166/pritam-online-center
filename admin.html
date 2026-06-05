@@ -160,7 +160,7 @@
                     <div class="receipt-row"><span>मोबाइल नंबर:</span><span id="rcpt-phone">-</span></div>
                     <div class="receipt-row"><span>काम का विवरण:</span><span id="rcpt-work">-</span></div>
                     <p>---------------------------</p>
-                    <div class="receipt-row"><span>कुल चार्ज:</span><b>₹<span id="rcpt-total">0</span></b></div>
+                    <div class="receipt-row"><span>कुल charge:</span><b>₹<span id="rcpt-total">0</span></b></div>
                     <div class="receipt-row"><span>जमा राशि:</span><b style="color:green;">₹<span id="rcpt-paid">0</span></b></div>
                     <div class="receipt-row"><span>बाकी उधारी (Due):</span><b style="color:red;">₹<span id="rcpt-due">0</span></b></div>
                     <p>---------------------------</p>
@@ -174,13 +174,13 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
         import { initAuthManager } from "./auth.js";
         import { initDashboardManager, calculateLiveStats } from "./dashboard.js";
         import { initAppointmentManager, getLiveShopBookingStatus, toggleShopBookingStatus, loadAdminAppointments, changeAptStatus } from "./appointment.js";
         import { initCustomersManager, loadAllCustomers, changeUserStatus } from "./customers.js";
-        import { initLedgerManager, updateCustomerLedger, addShopExpense } from "./ledger.js";
+        import { addShopExpense } from "./ledger.js";
         import { initNotificationsManager, saveNotification, loadAdminNotifications, cancelEdit, deleteNotice } from "./notifications.js";
 
         const firebaseConfig = {
@@ -196,7 +196,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        initDashboardManager(db); initAppointmentManager(db); initCustomersManager(db); initLedgerManager(db); initNotificationsManager(db);
+        initDashboardManager(db); initAppointmentManager(db); initCustomersManager(db); initNotificationsManager(db);
 
         let globalShopOpenStatus = true;
 
@@ -218,7 +218,6 @@
         window.openUsersModal = function() { document.getElementById('users-modal').classList.remove('hidden'); }
         window.closeUsersModal = function() { document.getElementById('users-modal').classList.add('hidden'); }
         
-        window.updateCustomerLedger = updateCustomerLedger;
         window.addShopExpense = addShopExpense;
         window.closeReceiptModal = function() { document.getElementById('receipt-modal').classList.add('hidden'); }
         
@@ -245,20 +244,18 @@
                 if (!querySnapshot.empty) {
                     const data = querySnapshot.docs[0].data();
                     
-                    // Autofill background colors to show visual feedback
                     document.getElementById('cust-uid').classList.add('smart-searching');
                     document.getElementById('cust-name').classList.add('smart-searching');
                     document.getElementById('cust-phone').classList.add('smart-searching');
 
-                    // Autofill fields
                     document.getElementById('cust-uid').value = data.customerID || data.customerUid || "";
                     document.getElementById('cust-name').value = data.customerName || "";
                     document.getElementById('cust-phone').value = data.customerPhone || "";
 
                     setTimeout(() => {
-                        document.getElementById('cust-uid').classList.remove('smart-searching');
-                        document.getElementById('cust-name').classList.remove('smart-searching');
-                        document.getElementById('cust-phone').classList.remove('smart-searching');
+                        document.getElementById('cust-uid').remove('smart-searching');
+                        document.getElementById('cust-name').remove('smart-searching');
+                        document.getElementById('cust-phone').remove('smart-searching');
                     }, 1000);
                 }
             } catch (err) {
@@ -266,21 +263,25 @@
             }
         };
 
-        // 🧠 Smart ID Verification & Data Entry Processing
+        // 🧠 Core Independent Smart Ledger Processing (Fixes 'UID Amanya hai' error)
         window.processSmartLedger = async function() {
             let uid = document.getElementById('cust-uid').value.trim();
             let name = document.getElementById('cust-name').value.trim();
             let phone = document.getElementById('cust-phone').value.trim();
+            const work = document.getElementById('work-title').value.trim();
+            const total = Number(document.getElementById('total-amt').value);
+            const paid = Number(document.getElementById('paid-amt').value);
+            const link = document.getElementById('cust-file-link').value.trim();
 
-            if (!uid && !name && !phone) {
-                alert("Kripya UID, Naam ya Mobile Number me se koi bhi EK chiz jarur bharen!");
+            if (!name || !phone || !work) {
+                alert("कृपया नाम, मोबाइल नंबर और काम का विवरण अवश्य भरें!");
                 return;
             }
 
             try {
                 const txRef = collection(db, "transactions");
                 
-                // If UID is empty, let's look up if this customer exists by phone/name, or generate a new serial ID
+                // If UID is empty, look up if this customer exists by phone, or generate a new sequential ID
                 if (!uid) {
                     let foundUid = "";
                     const allSnapshot = await getDocs(txRef);
@@ -290,34 +291,74 @@
                         const d = doc.data();
                         if (d.customerID) uniqueIDs.add(d.customerID);
                         if (d.customerPhone === phone && phone !== "") foundUid = d.customerID;
-                        if (d.customerName === name && name !== "" && foundUid === "") foundUid = d.customerID;
                     });
 
                     if (foundUid) {
                         uid = foundUid;
                     } else {
-                        // Generate brand new unique sequential ID
                         const nextNum = uniqueIDs.size + 1;
                         uid = `POC-2026-${String(nextNum).padStart(3, '0')}`;
                     }
-                    
                     document.getElementById('cust-uid').value = uid;
                 }
 
-                // Fill details into printing receipt elements
-                if(document.getElementById('rcpt-uid')) document.getElementById('rcpt-uid').innerText = uid;
-                if(document.getElementById('rcpt-phone')) document.getElementById('rcpt-phone').innerText = phone || "N/A";
+                const due = total - paid;
+                const todayStr = new Date().toLocaleDateString('en-GB');
 
-                // Call the standard ledger save function from ledger.js
-                await updateCustomerLedger();
-                
-                // Reset custom inputs after successful save
+                const transactionData = {
+                    customerID: uid,
+                    customerUid: uid, // compatibility for both variables
+                    customerName: name,
+                    customerPhone: phone,
+                    workTitle: work,
+                    totalAmount: total,
+                    paidAmount: paid,
+                    dueAmount: due,
+                    fileLink: link || "",
+                    timestamp: serverTimestamp(),
+                    date: todayStr
+                };
+
+                // Direct writing into transactions collection to bypass any legacy restriction
+                await addDoc(txRef, transactionData);
+
+                // Calculate current market due sum for this client
+                const historyQ = query(txRef, where("customerPhone", "==", phone));
+                const historySnapshot = await getDocs(historyQ);
+                let currentTotalMarketDue = 0;
+                historySnapshot.forEach(doc => {
+                    currentTotalMarketDue += (doc.data().dueAmount || 0);
+                });
+
+                // Update Receipt elements
+                if(document.getElementById('rcpt-uid')) document.getElementById('rcpt-uid').innerText = uid;
+                if(document.getElementById('rcpt-date')) document.getElementById('rcpt-date').innerText = todayStr;
+                if(document.getElementById('rcpt-name')) document.getElementById('rcpt-name').innerText = name;
+                if(document.getElementById('rcpt-phone')) document.getElementById('rcpt-phone').innerText = phone;
+                if(document.getElementById('rcpt-work')) document.getElementById('rcpt-work').innerText = work;
+                if(document.getElementById('rcpt-total')) document.getElementById('rcpt-total').innerText = total;
+                if(document.getElementById('rcpt-paid')) document.getElementById('rcpt-paid').innerText = paid;
+                if(document.getElementById('rcpt-due')) document.getElementById('rcpt-due').innerText = due;
+                if(document.getElementById('rcpt-market-due')) document.getElementById('rcpt-market-due').innerText = currentTotalMarketDue;
+
+                // Trigger print dialog modal
+                document.getElementById('receipt-modal').classList.remove('hidden');
+                alert(`🎉 रिकॉर्ड सुरक्षित सेव हो गया!\nकस्टमर ID: ${uid}`);
+
+                // Reset inputs
                 document.getElementById('cust-uid').value = "";
                 document.getElementById('cust-name').value = "";
                 document.getElementById('cust-phone').value = "";
+                document.getElementById('work-title').value = "";
+                document.getElementById('total-amt').value = "";
+                document.getElementById('paid-amt').value = "";
+                document.getElementById('cust-file-link').value = "";
+
+                // Recalculate Dashboard Stats cards dynamically
+                if (typeof calculateLiveStats === "function") calculateLiveStats();
                 
             } catch (error) {
-                alert("Smart Entry Error: " + error.message);
+                alert("ट्रांजैक्शन सेव करने में त्रुटि: " + error.message);
             }
         };
 
