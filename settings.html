@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pritam Center - System Settings</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f1f5f9; padding: 20px; color: #334155; }
+        .container { max-width: 600px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 6px solid #6c757d; }
+        h2 { color: #475569; margin-bottom: 20px; font-size: 1.6rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #64748b; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; }
+        input:focus { outline: none; border-color: #6c757d; box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1); }
+        .btn-save { background-color: #6c757d; color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-save:hover { background-color: #5a6268; }
+        .back-link { display: inline-block; margin-top: 15px; color: #64748b; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>⚙️ सिस्टम एवं दुकान सेटिंग्स</h2>
+        
+        <div class="form-group">
+            <label>दुकान का नाम (Shop Name)</label>
+            <input type="text" id="set-shop-name" placeholder="उदा: प्रीतम ऑनलाइन सेंटर">
+        </div>
+        
+        <div class="form-group">
+            <label>दुकान का पता (Address)</label>
+            <input type="text" id="set-shop-address" placeholder="उदा: पीरी बाज़ार, लखीसराय, बिहार">
+        </div>
+        
+        <div class="form-group">
+            <label>हेल्पलाइन मोबाइल नंबर (Mobile Number)</label>
+            <input type="text" id="set-shop-mobile" placeholder="उदा: 7301XXXXXX">
+        </div>
+        
+        <button class="btn-save" onclick="saveSystemSettings()">कॉन्फ़िगरेशन सेव करें 💾</button>
+        
+        <center><a href="admin.html" class="back-link">← वापस कंट्रोल रूम में जाएँ</a></center>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnB1JHi8K1TZtUk-SQ9r4pzYik_PLwqyQ",
+            authDomain: "pritam-online-center.firebaseapp.com",
+            projectId: "pritam-online-center",
+            storageBucket: "pritam-online-center.firebasestorage.app",
+            messagingSenderId: "310541912344",
+            appId: "1:310541912344:web:3f05beef1626edfe2f766d",
+            measurementId: "G-T87S6TXHR6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // पहले से सेव डेटा लोड करना
+        async function loadCurrentSettings() {
+            try {
+                const docSnap = await getDoc(doc(db, "system", "config"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('set-shop-name').value = data.shop_name || "";
+                    document.getElementById('set-shop-address').value = data.shop_address || "";
+                    document.getElementById('set-shop-mobile').value = data.shop_mobile || "";
+                }
+            } catch (e) { console.error(e.message); }
+        }
+
+        // नया डेटा सेव करना
+        window.saveSystemSettings = async function() {
+            const shop_name = document.getElementById('set-shop-name').value.trim();
+            const shop_address = document.getElementById('set-shop-address').value.trim();
+            const shop_mobile = document.getElementById('set-shop-mobile').value.trim();
+
+            if (!shop_name) return alert("दुकान का नाम डालना ज़रूरी है!");
+
+            try {
+                await setDoc(doc(db, "system", "config"), {
+                    shop_name,
+                    shop_address,
+                    shop_mobile
+                }, { merge: true });
+                
+                alert("🎉 सेटिंग्स डेटाबेस में सुरक्षित सेव हो गई!");
+                window.location.href = "admin.html";
+            } catch (e) {
+                alert("त्रुटि: " + e.message);
+            }
+        };
+
+        loadCurrentSettings();
+    </script>
+</body>
+</html>
